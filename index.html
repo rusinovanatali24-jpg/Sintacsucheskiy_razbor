@@ -1,0 +1,294 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Редактор синтаксического разбора — Мастерская репетитора</title><style>
+  :root{
+    --ink:#20232b;
+    --ink-soft:#565b68;
+    --paper:#eef1f6;
+    --panel:#ffffff;
+    --line:#dde1ea;
+    --teal:#0f6e6e;
+    --teal-dark:#0a4f4f;
+    --gold:#c9a227;
+    --danger:#c1442e;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(20,25,40,.04), 0 8px 24px -12px rgba(20,25,40,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 500px at 100% -10%, #e6ecf3 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Nunito',system-ui,sans-serif;
+    min-height:100vh;
+  }
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 28px;
+    background:linear-gradient(135deg,var(--teal-dark),var(--teal));
+    color:#fff;
+    box-shadow:var(--shadow);
+    position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .brand h1{
+    font-family:'PT Serif',serif;
+    font-size:22px;margin:0;font-weight:700;letter-spacing:.2px;
+  }
+  .brand .chalk{
+    font-family:'Caveat',cursive;
+    font-size:19px;color:var(--gold);
+    transform:rotate(-2deg);display:inline-block;
+  }
+  .credit{font-size:12.5px;opacity:.92;text-align:right;line-height:1.4;}
+  .credit b{font-weight:800;}
+
+  .tabs{
+    display:flex;gap:6px;padding:14px 28px 0;
+    max-width:1400px;margin:0 auto;
+  }
+  .tab-btn{
+    border:none;background:transparent;
+    padding:10px 18px;border-radius:10px 10px 0 0;
+    font-family:'Nunito',sans-serif;font-weight:700;font-size:14.5px;
+    color:var(--ink-soft);cursor:pointer;
+    border:1px solid transparent;
+  }
+  .tab-btn.active{
+    background:var(--panel);color:var(--teal-dark);
+    border:1px solid var(--line);border-bottom-color:var(--panel);
+  }
+
+  .layout{
+    max-width:1400px;margin:0 auto;padding:0 28px 40px;
+    display:flex;flex-direction:column;gap:22px;
+  }
+
+  .panel{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:0 12px 12px 12px;
+    box-shadow:var(--shadow);
+    padding:24px;
+  }
+  .tab-page{display:none;}
+  .tab-page.active{display:block;}
+
+  h2.section-title{
+    font-family:'PT Serif',serif;font-size:19px;margin:0 0 4px;color:var(--teal-dark);
+  }
+  p.section-hint{margin:0 0 18px;color:var(--ink-soft);font-size:13.5px;}
+
+  .field-row{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field.full{grid-column:1/-1;}
+  label{font-size:12.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.03em;}
+  input[type=text], input[type=number], select, textarea{
+    font-family:'Nunito',sans-serif;font-size:14.5px;
+    padding:9px 10px;border:1.5px solid var(--line);border-radius:8px;
+    background:#fbfcfe;color:var(--ink);width:100%;
+  }
+  input[type=text]:focus, select:focus, textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+  input[type=text]:disabled{background:#eef0f4;color:var(--ink-soft);cursor:not-allowed;font-style:italic;}
+  input[type=color]{width:52px;height:38px;border:1.5px solid var(--line);border-radius:8px;padding:2px;background:#fbfcfe;cursor:pointer;}
+  input[type=range]{width:100%;}
+  .swatch-row{display:flex;align-items:center;gap:10px;}
+  .swatch-row input[type=text]{flex:1;}
+
+  .rows-wrap{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .row-card{
+    border:1.5px solid var(--line);border-radius:10px;padding:12px;
+    background:#fbfcfe;
+  }
+  .row-card.indent{border-left:4px solid var(--gold);background:#fffdf4;}
+  .row-grid{
+    display:grid;grid-template-columns:64px 90px 1fr;gap:8px;align-items:start;
+  }
+  .row-grid .char-select{margin-top:6px;grid-column:1/-1;}
+  .row-tools{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+  .row-tools .left{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-soft);}
+  .row-tools .right{display:flex;gap:6px;}
+  .icon-btn{
+    border:1.5px solid var(--line);background:#fff;border-radius:7px;
+    width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{border-color:var(--teal);color:var(--teal-dark);}
+  .icon-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+
+  .btn{
+    font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;
+    border:none;border-radius:9px;padding:11px 18px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-teal{background:var(--teal);color:#fff;}
+  .btn-teal:hover{background:var(--teal-dark);}
+  .btn-ghost{background:#fff;border:1.5px solid var(--line);color:var(--ink);}
+  .btn-ghost:hover{border-color:var(--teal);color:var(--teal-dark);}
+  .btn-gold{background:var(--gold);color:#3a2f00;}
+  .btn-gold:hover{filter:brightness(.95);}
+  .btn-block{width:100%;justify-content:center;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+  /* Preview / sticky sidebar */
+  .preview-block{width:100%;}
+  .preview-frame{
+    border:1.5px dashed var(--line);border-radius:12px;padding:18px;
+    background:repeating-conic-gradient(#f4f6f9 0% 25%, #eef1f6 0% 50%) 50% / 16px 16px;
+    overflow-x:auto;
+  }
+  #cardResizeWrap{
+    resize:both;overflow:auto;
+    min-width:320px;max-width:100%;min-height:60px;
+    margin:0 auto;
+  }
+  #cardMount{width:100%;}
+
+  .export-list{display:flex;flex-direction:column;gap:10px;}
+  .textarea-out{
+    width:100%;min-height:90px;font-family:'PT Serif',serif;font-size:12.5px;
+    border:1.5px solid var(--line);border-radius:8px;padding:8px;resize:vertical;
+    background:#fbfcfe;color:var(--ink-soft);
+  }
+  .hint{font-size:12px;color:var(--ink-soft);}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:10px 18px;border-radius:9px;
+    font-size:13.5px;font-weight:700;opacity:0;pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  .checkbox-line{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-soft);}
+  .checkbox-line input{width:16px;height:16px;}
+
+  footer.tool-footer{
+    max-width:1400px;margin:0 auto;padding:0 28px 40px;color:var(--ink-soft);font-size:12.5px;
+  }
+</style><style>
+.topbar{position:static}.field-row{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.tabs{flex-wrap:wrap}.word-area{padding:20px;background:#f7f1e6;border:1px solid #dfd7c6;border-radius:12px;line-height:3.3;font-family:Georgia,serif;font-size:24px;white-space:pre-wrap;overflow-wrap:anywhere}.word-btn{display:inline-flex;vertical-align:bottom;position:relative;flex-direction:column;align-items:center;color:inherit;background:none;border:2px solid transparent;border-radius:5px;font:inherit;padding:3px 3px 8px;line-height:1.4;cursor:pointer}.word-btn.selected{background:#d7eeee;border-color:#0f6e6e}.word-btn small{font:12px Arial;min-height:17px;max-width:160px;overflow-wrap:anywhere}.mark{display:block;position:relative;height:9px;width:100%;overflow:hidden}.mark svg{display:block;position:absolute;left:0;top:0;width:100%;height:9px}.role-tools{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.role-tools button{flex:1 1 140px}.role-tools .mark{width:70px}.selected-info{color:#0a4f4f;font-weight:bold;margin:12px 0}.character-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.character-fields label{display:block;margin-bottom:6px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.sr-card{box-sizing:border-box;overflow-wrap:anywhere;padding:28px;margin:0 auto;max-width:100%}.sr-sentence{white-space:pre-wrap;line-height:2.8}.sr-word{display:inline-flex;flex-direction:column;align-items:center;vertical-align:bottom;line-height:1.35;max-width:100%}.sr-pos{font-size:.48em;min-height:1.5em;line-height:1.5;white-space:normal}.sr-character{font-size:.65em;line-height:1.7;margin-top:18px}.sr-title{font-size:.9em;margin-bottom:20px;font-weight:bold}.preview-frame{background:#e8ecef}.hint{line-height:1.6}button:focus-visible{outline:3px solid #c9a227;outline-offset:3px}textarea{resize:vertical}.hidden{display:none!important}@media(max-width:600px){.layout{padding:0 12px 24px}.tabs{padding-left:12px}.panel{padding:16px}.topbar{padding:16px;gap:12px;flex-wrap:wrap}.brand h1{font-size:19px}.credit{text-align:left}.word-area{padding:10px}.btn{padding:10px}.preview-frame{padding:8px}}@media print{body>*:not(.layout){display:none!important}.layout>div,.preview-block>h2,.preview-block>p{display:none!important}.layout{padding:0;display:block}.preview-frame{border:0;padding:0;background:none}.sr-card{max-width:100%!important;print-color-adjust:exact}}
+</style></head><body>
+<header class="topbar"><div class="brand"><h1>Редактор синтаксического разбора</h1><span class="chalk">Мастерская репетитора</span></div><div class="credit">На основе редактора Натальи Ситниковой</div></header>
+<nav class="tabs" aria-label="Разделы редактора"><button class="tab-btn active" data-tab="parse">✎ Разбор</button><button class="tab-btn" data-tab="visual">🎨 Оформление</button><button class="tab-btn" data-tab="export">↓ Экспорт</button></nav>
+<main class="layout"><div>
+<section id="page-parse" class="tab-page active panel"><h2 class="section-title">Предложение</h2><p class="section-hint">Введите предложение, затем разметьте его вручную. Редактор не определяет члены предложения автоматически.</p>
+<label for="sentence">Текст предложения</label><textarea id="sentence" rows="3"></textarea><div class="btn-row"><button class="btn btn-teal" id="apply">Применить текст</button><span class="hint" id="text-status" role="status"></span></div><p class="hint">После изменения текста нажмите «Применить текст». Разметка неизменённых слов сохраняется; новые слова нужно разобрать.</p>
+<h2 class="section-title">Члены предложения и части речи</h2><p class="section-hint">Нажмите на нужные слова, затем выберите член предложения. Повторное нажатие снимает выделение. Так можно подчеркнуть и составное сказуемое, и дополнение вместе с предлогом.</p><div id="words" class="word-area" aria-label="Слова для разбора"></div><div class="selected-info" id="selection" role="status"></div><div class="toolbar"><button class="btn btn-ghost" id="select-all">Выделить все слова</button><button class="btn btn-ghost" id="deselect">Снять выделение</button></div><div id="roles" class="role-tools"></div>
+<div class="field-row"><div class="field"><label for="pos">Часть речи выбранных слов</label><input id="pos" list="pos-list" placeholder="Выберите или впишите, например: сущ."><datalist id="pos-list"></datalist></div><div class="field"><label>Применение подписи</label><button class="btn btn-teal" id="set-pos">Подписать над словами</button><button class="btn btn-ghost" id="clear-pos">Убрать подпись</button></div></div>
+<h2 class="section-title">Характеристика предложения</h2><p class="section-hint">Выберите вариант из подсказок или впишите свой. Пустые поля не попадут в скобки.</p><div id="character-fields" class="character-fields"></div><div class="field" id="detail-wrap" style="margin-top:14px"><label for="detail">Чем осложнено</label><input id="detail" list="detail-list" placeholder="Например: однородными определениями"><datalist id="detail-list"><option>однородными членами</option><option>обращением</option><option>вводной конструкцией</option><option>обособленным определением</option><option>обособленным обстоятельством</option></datalist></div><div class="field" style="margin-top:14px"><label for="custom">Характеристика целиком — необязательно</label><textarea id="custom" rows="2" placeholder="Этот текст заменит собранную характеристику в скобках"></textarea></div></section>
+<section id="page-visual" class="tab-page panel"><h2 class="section-title">Оформление карточки</h2><p class="section-hint">Предпросмотр внизу обновляется сразу.</p><div class="field-row"><div class="field"><label for="title">Заголовок</label><input id="title"></div><div class="field"><label for="font">Шрифт</label><select id="font"><option value="Georgia, serif">Georgia</option><option value="Arial, sans-serif">Arial</option><option value="Verdana, sans-serif">Verdana</option><option value="'Times New Roman', serif">Times New Roman</option><option value="'Comic Sans MS', cursive">Comic Sans MS</option></select></div><div class="field"><label for="size">Размер предложения: <span id="size-value"></span> px</label><input type="range" id="size" min="18" max="46"></div><div class="field"><label for="width">Ширина карточки: <span id="width-value"></span> px</label><input id="width" type="range" min="320" max="1400" step="10"></div><div class="field"><label for="color">Цвет текста и линий</label><input type="color" id="color"></div><div class="field"><label for="bg">Фон карточки</label><input type="color" id="bg"></div><div class="field"><label for="border">Цвет рамки и заголовка</label><input type="color" id="border"></div><div class="field"><label for="borderWidth">Толщина рамки</label><select id="borderWidth"><option value="0">Без рамки</option><option value="2">Тонкая</option><option value="6">Средняя</option><option value="10">Толстая</option></select></div><div class="field"><label for="radius">Скругление углов</label><input type="range" id="radius" min="0" max="40"></div></div></section>
+<section id="page-export" class="tab-page panel"><h2 class="section-title">Сохранение и экспорт</h2><p class="section-hint">HTML — готовая карточка. JSON — проект, который можно снова открыть в этом редакторе.</p><div class="btn-row"><button id="download-html" class="btn btn-teal">Скачать карточку HTML</button><button id="print" class="btn btn-ghost">Печать / PDF</button><button id="save" class="btn btn-gold">Сохранить проект JSON</button><button id="load" class="btn btn-ghost">Загрузить проект JSON</button><input type="file" id="file" accept=".json,application/json" hidden></div><div class="btn-row"><button id="iframe" class="btn btn-ghost">Копировать iframe для Genially</button></div><label for="code">Код для вставки</label><textarea id="code" class="textarea-out" readonly placeholder="Нажмите кнопку выше, чтобы получить код"></textarea><p class="hint">Все линии включены в HTML. Интернет и установка программ для работы редактора не требуются. Сохраняйте проект JSON, чтобы не потерять изменения после закрытия страницы.</p></section>
+</div><section class="preview-block"><h2 class="section-title">Предпросмотр карточки</h2><p class="section-hint">Так будет выглядеть сохранённый разбор.</p><div class="preview-frame" id="preview"></div></section></main><div id="toast" class="toast" role="status"></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const roles=[['subject','Подлежащее'],['predicate','Сказуемое'],['attribute','Определение'],['object','Дополнение'],['adverbial','Обстоятельство'],['','Без подчёркивания']];
+const fields=[['purpose','По цели высказывания',['повествовательное','вопросительное','побудительное']],['emotion','По эмоциональной окраске',['невосклицательное','восклицательное']],['structure','По числу грамматических основ',['простое','сложное','сложносочинённое','сложноподчинённое','бессоюзное сложное']],['basis','По наличию главных членов',['двусоставное','односоставное','односоставное, определённо-личное','односоставное, неопределённо-личное','односоставное, обобщённо-личное','односоставное, безличное','односоставное, назывное']],['spread','По наличию второстепенных членов',['распространённое','нераспространённое']],['complete','По полноте — необязательно',['полное','неполное']],['complication','Осложнение',['неосложнённое','осложнено']]];
+let state={type:'syntax-editor',version:1,sentence:'На сухую, твёрдую, мёрзлую землю упал ранний снег.',tokens:[],title:'Синтаксический разбор предложения',character:{purpose:'повествовательное',emotion:'невосклицательное',structure:'простое',basis:'двусоставное',spread:'распространённое',complete:'полное',complication:'осложнено'},detail:'однородными определениями',custom:'',visual:{font:'Georgia, serif',size:30,width:1000,color:'#3b2f2a',bg:'#f7f1e6',border:'#8a5a3f',borderWidth:2,radius:18}};
+let selected=new Set(),timer;
+function tokenize(text){return (text.match(/[\p{L}\p{N}]+(?:[\u0300-\u036f]*[\p{L}\p{N}]*)*(?:[-‑][\p{L}\p{N}]+)*|[^\p{L}\p{N}]+/gu)||[]).map(text=>({text,word:/[\p{L}\p{N}]/u.test(text),role:'',pos:''}));}
+function mark(role){let shape='';if(role==='subject')shape='<path d="M0 4H1000"/>';if(role==='predicate')shape='<path d="M0 2H1000M0 7H1000"/>';if(role==='object')shape='<path d="M0 4H1000" stroke-dasharray="5 4"/>';if(role==='adverbial')shape='<path d="M0 4H1000" stroke-dasharray="11 4 2 4"/>';if(role==='attribute')shape='<path d="M0 4'+Array.from({length:125},()=> 'q2 -4 4 0t4 0').join('')+'"/>';return '<span class="mark" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="100%" height="9">'+(shape?'<g fill="none" stroke="currentColor" stroke-width="1.5">'+shape+'</g>':'')+'</svg></span>';}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(timer);timer=setTimeout(()=>$('toast').classList.remove('show'),3200);}
+function renderWords(){ $('words').innerHTML=state.tokens.map((t,i)=>t.word?'<button class="word-btn '+(selected.has(i)?'selected':'')+'" data-index="'+i+'" aria-pressed="'+selected.has(i)+'" aria-label="'+esc(t.text+', '+(roles.find(r=>r[0]===t.role)||roles[5])[1]+(t.pos?', '+t.pos:''))+'"><small>'+esc(t.pos)+'</small><span>'+esc(t.text)+'</span>'+mark(t.role)+'</button>':esc(t.text)).join('');$('selection').textContent=selected.size?'Выбрано слов: '+selected.size+' — '+[...selected].sort((a,b)=>a-b).map(i=>state.tokens[i].text).join(', '):'Выберите слова для разметки';}
+function characteristic(){if(state.custom.trim())return state.custom.trim().replace(/^\((.*)\)$/s,'$1');return fields.map(([k])=>{let t=state.character[k].trim();if(k==='complication'&&/^осложнен[оаыё]?|^осложнён|^осложнено/i.test(t)&&state.detail.trim())t+=' '+state.detail.trim();return t;}).filter(Boolean).join(', ');}
+const cardCSS='.sr-card{box-sizing:border-box;overflow-wrap:anywhere;margin:0 auto;padding:28px;max-width:100%;}.sr-title{font-size:.9em;margin-bottom:20px;font-weight:bold}.sr-sentence{white-space:pre-wrap;line-height:2.8}.sr-word{display:inline-flex;flex-direction:column;align-items:center;vertical-align:bottom;line-height:1.35;max-width:100%}.sr-pos{font-size:.48em;min-height:1.5em;line-height:1.5;white-space:normal}.mark{display:block;position:relative;height:9px;width:100%;overflow:hidden}.mark svg{display:block;position:absolute;left:0;top:0;width:100%;height:9px}.sr-character{font-size:.65em;line-height:1.7;margin-top:18px}';
+function card(){const v=state.visual;return '<article class="sr-card" style="font-family:'+esc(v.font)+';font-size:'+v.size+'px;width:'+v.width+'px;color:'+v.color+';background:'+v.bg+';border:'+v.borderWidth+'px solid '+v.border+';border-radius:'+v.radius+'px"><div class="sr-title" style="color:'+v.border+'">'+esc(state.title)+'</div><div class="sr-sentence">'+state.tokens.map(t=>t.word?'<span class="sr-word"><span class="sr-pos">'+esc(t.pos)+'</span><span>'+esc(t.text)+'</span>'+mark(t.role)+'</span>':'<span style="display:inline-block;vertical-align:bottom;line-height:1.35;padding-bottom:9px">'+esc(t.text)+'</span>').join('')+'</div><div class="sr-character">('+esc(characteristic())+')</div></article>';}
+function render(){renderWords();$('preview').innerHTML=card();$('detail-wrap').classList.toggle('hidden',!/^осложнен|^осложнён|^осложнено/i.test(state.character.complication));}
+function applyText(){const text=$('sentence').value;if(text===state.sentence)return;const old=state.tokens.filter(t=>t.word),fresh=tokenize(text),words=fresh.filter(t=>t.word);/* Sequence alignment keeps repeated words tied to their context. */if(old.length*words.length<=1000000){const dp=Array.from({length:old.length+1},()=>new Uint16Array(words.length+1));for(let i=old.length-1;i>=0;i--)for(let j=words.length-1;j>=0;j--)dp[i][j]=old[i].text===words[j].text?1+dp[i+1][j+1]:Math.max(dp[i+1][j],dp[i][j+1]);let i=0,j=0;while(i<old.length&&j<words.length){if(old[i].text===words[j].text){words[j].role=old[i].role;words[j].pos=old[i].pos;i++;j++;}else if(dp[i+1][j]>=dp[i][j+1])i++;else j++;}}state.sentence=text;state.tokens=fresh;selected.clear();$('text-status').textContent='Текст применён';render();}
+function ensureApplied(){if($('sentence').value!==state.sentence)applyText();}
+fields.forEach(([key,label,options])=>{const div=document.createElement('div');div.innerHTML='<label for="c-'+key+'">'+label+'</label><input id="c-'+key+'" list="list-'+key+'" placeholder="Выберите или впишите"><datalist id="list-'+key+'">'+options.map(x=>'<option>'+x+'</option>').join('')+'</datalist>';$('character-fields').append(div);$('c-'+key).oninput=e=>{state.character[key]=e.target.value;render();};});
+$('pos-list').innerHTML=['сущ.','прил.','гл.','мест.','числ.','нареч.','прич.','дееприч.','предл.','союз','част.','межд.','кат. сост.'].map(x=>'<option>'+x+'</option>').join('');
+$('roles').innerHTML=roles.map(([key,label])=>'<button class="btn btn-ghost" data-role="'+key+'">'+mark(key)+label+'</button>').join('');
+$('roles').onclick=e=>{const b=e.target.closest('[data-role]');if(!b)return;if(!selected.size)return toast('Сначала выделите нужные слова');selected.forEach(i=>state.tokens[i].role=b.dataset.role);render();};
+$('words').onclick=e=>{const b=e.target.closest('[data-index]');if(!b)return;const i=Number(b.dataset.index);selected.has(i)?selected.delete(i):selected.add(i);$('pos').value=selected.size===1?state.tokens[[...selected][0]].pos:'';renderWords();};
+$('select-all').onclick=()=>{state.tokens.forEach((t,i)=>{if(t.word)selected.add(i);});renderWords();};$('deselect').onclick=()=>{selected.clear();renderWords();};
+function setPos(value){if(!selected.size)return toast('Сначала выделите нужные слова');selected.forEach(i=>state.tokens[i].pos=value.trim());render();}
+$('set-pos').onclick=()=>setPos($('pos').value);$('clear-pos').onclick=()=>{$('pos').value='';setPos('');};$('pos').onkeydown=e=>{if(e.key==='Enter')setPos(e.target.value);};$('apply').onclick=applyText;$('sentence').oninput=()=>{$('text-status').textContent=$('sentence').value===state.sentence?'':'Есть изменения — примените текст';};
+['detail','custom','title'].forEach(k=>$(k).oninput=e=>{state[k]=e.target.value;render();});
+Object.keys(state.visual).forEach(k=>$(k).oninput=e=>{state.visual[k]=['size','width','borderWidth','radius'].includes(k)?Number(e.target.value):e.target.value;$('size-value').textContent=state.visual.size;$('width-value').textContent=state.visual.width;render();});
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tab-page').forEach(x=>x.classList.toggle('active',x.id==='page-'+b.dataset.tab));});
+function hydrate(){$('sentence').value=state.sentence;['detail','custom','title'].forEach(k=>$(k).value=state[k]);fields.forEach(([k])=>$('c-'+k).value=state.character[k]);Object.keys(state.visual).forEach(k=>$(k).value=state.visual[k]);$('size-value').textContent=state.visual.size;$('width-value').textContent=state.visual.width;$('text-status').textContent='';selected.clear();render();}
+function standalone(){ensureApplied();return '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(state.title)+'</title><style>body{margin:0;padding:16px}'+cardCSS+'@media print{body{padding:0}.sr-card{print-color-adjust:exact}}</style></head><body>'+card()+'</body></html>';}
+function download(name,text,type){const url=URL.createObjectURL(new Blob([text],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);}
+$('download-html').onclick=()=>download('Синтаксический разбор — карточка.html',standalone(),'text/html;charset=utf-8');$('save').onclick=()=>{ensureApplied();download('Синтаксический разбор — проект.json',JSON.stringify(state,null,2),'application/json');};$('print').onclick=()=>{ensureApplied();window.print();};
+$('iframe').onclick=async()=>{const code='<iframe title="Синтаксический разбор" srcdoc="'+esc(standalone())+'" style="width:100%;height:520px;border:0" loading="lazy"></iframe>';$('code').value=code;try{await navigator.clipboard.writeText(code);toast('Код скопирован');}catch{$('code').select();toast('Код готов — скопируйте его из поля');}};
+function validate(x){if(!x||x.type!=='syntax-editor'||x.version!==1)throw Error('Это не проект синтаксического разбора');for(const k of ['sentence','title','detail','custom'])if(typeof x[k]!=='string'||x[k].length>50000)throw Error('Некорректное поле '+k);const raw=tokenize(x.sentence);if(!Array.isArray(x.tokens)||x.tokens.length!==raw.length)throw Error('Некорректный список слов');x.tokens.forEach((t,i)=>{if(!t||t.text!==raw[i].text||t.word!==raw[i].word||!roles.some(r=>r[0]===t.role)||typeof t.pos!=='string'||t.pos.length>200)throw Error('Некорректная разметка слов');});if(!x.character||!x.visual)throw Error('Нет настроек');fields.forEach(([k])=>{if(typeof x.character[k]!=='string'||x.character[k].length>2000)throw Error('Некорректная характеристика');});const v=x.visual;for(const k of ['color','bg','border'])if(!/^#[0-9a-f]{6}$/i.test(v[k]))throw Error('Некорректный цвет');if(!Array.from($('font').options).some(o=>o.value===v.font))throw Error('Некорректный шрифт');for(const [k,min,max] of [['size',18,46],['width',320,1400],['radius',0,40],['borderWidth',0,10]])if(typeof v[k]!=='number'||!Number.isFinite(v[k])||v[k]<min||v[k]>max)throw Error('Некорректный размер');return x;}
+$('load').onclick=()=>$('file').click();$('file').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>2000000)throw Error('Файл слишком большой');const loaded=validate(JSON.parse(await f.text()));state=loaded;hydrate();toast('Проект загружен');}catch(err){toast('Не удалось загрузить: '+err.message);}e.target.value='';};
+const interactiveDefaults={enabled:true,roleMode:'select',posMode:'select',characterMode:'select',showAnswers:true,showReset:true};
+state.interactive={...interactiveDefaults};
+$('download-html').textContent='Скачать интерактивную карточку HTML';
+$('download-html').onclick=()=>{
+ state.interactive.enabled=true;
+ if(['roleMode','posMode','characterMode'].every(k=>state.interactive[k]==='static'))Object.assign(state.interactive,{roleMode:'select',posMode:'select',characterMode:'select'});
+ hydrateInteractive();ensureApplied();render();
+ download('Синтаксический разбор — интерактивная карточка.html',standalone(),'text/html;charset=utf-8');
+};
+const interPanel=document.createElement('section');
+interPanel.innerHTML=`<h2 class="section-title">Интерактивное задание</h2><p class="section-hint">Ваш разбор выше — ключ правильных ответов. В карточке ребёнок заполняет пустые поля и нажимает «Проверить». Поля, для которых вы не указали часть речи или характеристику, не проверяются.</p><label class="checkbox-line"><input type="checkbox" id="i-enabled"> Сделать карточку интерактивной</label><div id="i-options" class="field-row" style="margin-top:16px"></div><p class="hint">В режиме ввода принимаются полные названия частей речи и обычные сокращения: «существительное» / «сущ.», «прилагательное» / «прил.» и другие. Для собственных формулировок нужен тот же текст; регистр, ё/е и знаки препинания не важны. Произвольная характеристика целиком заполняется текстом.</p>`;
+interPanel.style.cssText='border-top:1px solid #dde1ea;margin-top:24px;padding-top:24px';
+$('page-parse').prepend(interPanel);
+interPanel.style.cssText='border:2px solid #0f6e6e;background:#eff9f7;border-radius:12px;padding:18px;margin-bottom:24px';
+const activate=document.createElement('button');activate.type='button';activate.id='make-interactive';activate.className='btn btn-teal';activate.textContent='Сделать карточку интерактивной';
+interPanel.prepend(activate);
+const modeStatus=document.createElement('p');modeStatus.id='export-mode';modeStatus.setAttribute('role','status');modeStatus.style.cssText='font-weight:bold;color:#0a4f4f';$('page-export').prepend(modeStatus);
+const versionBadge=document.createElement('p');versionBadge.textContent='Редактор 3 · Создание интерактивных карточек';versionBadge.style.cssText='margin:0 0 10px;color:#0a4f4f;font-weight:bold';$('page-parse').prepend(versionBadge);
+function enableInteractive(){state.interactive.enabled=true;if(['roleMode','posMode','characterMode'].every(k=>state.interactive[k]==='static'))Object.assign(state.interactive,{roleMode:'select',posMode:'select',characterMode:'select'});hydrateInteractive();render();toast('Интерактивная карточка включена. Настройте выбор или ввод ответов ниже.');}
+activate.onclick=enableInteractive;
+for(const [key,label] of [['roleMode','Члены предложения'],['posMode','Части речи'],['characterMode','Характеристика предложения']]){
+ const wrap=document.createElement('div');wrap.className='field';wrap.innerHTML='<label for="i-'+key+'">'+label+'</label><select id="i-'+key+'"><option value="static">Показать готовые ответы</option><option value="select">Ребёнок выбирает из списка</option><option value="input">Ребёнок вписывает сам</option></select>';$('i-options').append(wrap);
+}
+for(const [key,label] of [['showAnswers','Кнопка «Показать ответы»'],['showReset','Кнопка «Начать заново»']]){const wrap=document.createElement('label');wrap.className='checkbox-line';wrap.innerHTML='<input type="checkbox" id="i-'+key+'">'+label;$('i-options').append(wrap);}
+function hydrateInteractive(){state.interactive={...interactiveDefaults,...state.interactive};for(const key of Object.keys(interactiveDefaults)){const el=$('i-'+key);if(el.type==='checkbox')el.checked=state.interactive[key];else el.value=state.interactive[key];}$('i-options').hidden=!state.interactive.enabled;modeStatus.textContent=state.interactive.enabled?'Режим: интерактивная карточка — ответы ребёнка и проверка сохранятся в HTML.':'Предпросмотр: готовый разбор. Кнопка скачивания включит интерактивное задание.';activate.setAttribute('aria-pressed',String(state.interactive.enabled));}
+Object.keys(interactiveDefaults).forEach(key=>$('i-'+key).onchange=e=>{state.interactive[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;hydrateInteractive();render();});
+const exerciseCSS=`.sr-card .sx-instructions{font:14px/1.5 Arial,sans-serif;margin:0 0 18px}.sr-card .sr-word{margin:5px 2px;gap:4px}.sr-card .sx-answer{box-sizing:border-box;font:14px/1.3 Arial,sans-serif;color:#20232b;background:#fff;border:2px solid #88969a;border-radius:6px;padding:6px;max-width:100%;min-width:0;width:100%}.sr-card .sx-word-task{width:158px}.sr-card .sx-pos{width:100%;min-height:30px}.sr-card .sx-role{font-size:12px}.sr-card .sx-character{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:18px;font-size:20px}.sr-card .sx-character label{display:flex;flex:1 1 210px;flex-direction:column;gap:4px;font:12px/1.4 Arial,sans-serif;text-transform:none;letter-spacing:normal;color:inherit}.sr-card .sx-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.sr-card .sx-actions button{font:bold 14px Arial,sans-serif;padding:10px 14px;border:1px solid #0f6e6e;border-radius:8px;background:#0f6e6e;color:white;cursor:pointer}.sr-card .sx-feedback{font:14px/1.5 Arial,sans-serif;margin-top:12px}.sr-card .sx-answer.sx-correct{border-color:#23833e;background:#effaf1}.sr-card .sx-answer.sx-incorrect{border-color:#bf3b2d;background:#fff2ef}.sr-card .sx-answer:focus{outline:2px solid #0f6e6e;outline-offset:2px}.sr-card .sx-status{font:12px Arial,sans-serif;white-space:normal}.sr-card .sx-field{display:inline-flex;flex-direction:column;width:100%;gap:3px}.sr-card .sx-character .sx-field{min-width:0}@media(max-width:480px){.sr-card{padding:16px!important}.sr-card .sx-word-task{width:145px}}`;
+const style=document.createElement('style');style.textContent=exerciseCSS;document.head.append(style);
+const originalCard=card;
+function answerField(correct,mode,options,label,kind){
+ const attrs=' class="sx-answer '+(kind==='role'?'sx-role':'')+'" data-kind="'+kind+'" data-correct="'+esc(correct)+'" aria-label="'+esc(label)+'"';
+ let control;
+ if(mode==='select'){const list=[...new Set([...options,correct])].filter(x=>x!=='');control='<select'+attrs+'><option value="">— выбрать —</option>'+list.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'</select>';}
+ else control='<input type="text"'+attrs+' placeholder="Впишите ответ" autocomplete="off">';
+ return '<span class="sx-field">'+control+'<span class="sx-status" aria-live="polite"></span></span>';
+}
+card=function(){
+ if(!state.interactive.enabled)return originalCard();
+ const it=state.interactive,v=state.visual;
+ const posOptions=Array.from($('pos-list').options).map(x=>x.value);
+ const words=state.tokens.map((t,index)=>{
+  if(!t.word)return esc(index>0&&state.tokens[index-1].word?t.text.replace(/^[^\s\p{L}\p{N}]+/u,''):t.text);
+  const role=roles.find(r=>r[0]===t.role)[1];
+  const pos=t.pos&&it.posMode!=='static'?answerField(t.pos,it.posMode,posOptions,'Часть речи: '+t.text,'pos'):'<span class="sr-pos">'+esc(t.pos)+'</span>';
+  const roleField=it.roleMode!=='static'?answerField(role,it.roleMode,roles.map(r=>r[1]),'Член предложения: '+t.text,'role'):'';
+  const punctuation=(state.tokens[index+1]?.text.match(/^[^\s\p{L}\p{N}]+/u)||[''])[0];
+  return '<span class="sr-word '+(roleField||(t.pos&&it.posMode!=='static')?'sx-word-task':'')+'">'+pos+'<span style="position:relative;display:inline-block">'+esc(t.text)+'<span style="position:absolute;left:100%;top:0">'+esc(punctuation)+'</span><span class="sx-mark" style="display:block;width:100%">'+mark(it.roleMode==='static'?t.role:'')+'</span></span>'+roleField+'</span>';
+ }).join('');
+ let chars='';
+ if(it.characterMode==='static')chars='<div class="sr-character">('+esc(characteristic())+')</div>';
+ else {
+  const entries=state.custom.trim()?[['Своя характеристика',characteristic(),[], 'input']]:fields.filter(([k])=>state.character[k].trim()).map(([k,label,options])=>[label,state.character[k],options,it.characterMode]);
+  if(!state.custom.trim()&&/^осложнен|^осложнён|^осложнено/i.test(state.character.complication)&&state.detail.trim())entries.push(['Чем осложнено',state.detail,Array.from($('detail-list').options).map(x=>x.value),it.characterMode]);
+  chars='<div class="sx-character"><span>(</span>'+entries.map(([label,value,options,mode])=>'<label>'+esc(label)+answerField(value,mode,options,label,'character')+'</label>').join('<span>,</span>')+'<span>)</span></div>';
+ }
+ return '<article class="sr-card" style="font-family:'+esc(v.font)+';font-size:'+v.size+'px;width:'+v.width+'px;color:'+v.color+';background:'+v.bg+';border:'+v.borderWidth+'px solid '+v.border+';border-radius:'+v.radius+'px"><div class="sr-title" style="color:'+v.border+'">'+esc(state.title)+'</div><p class="sx-instructions">Заполните поля над словами, укажите члены предложения и характеристику в скобках. Затем нажмите «Проверить». Линии появляются после выбора или ввода члена предложения.</p><div class="sr-sentence">'+words+'</div>'+chars+'<div class="sx-actions"><button type="button" data-action="check">Проверить</button>'+(it.showAnswers?'<button type="button" data-action="answers">Показать ответы</button>':'')+(it.showReset?'<button type="button" data-action="reset">Начать заново</button>':'')+'</div><div class="sx-feedback" role="status"></div></article>';
+};
+function wireExercise(root,drawMark){
+ const normalize=s=>String(s).toLowerCase().replace(/ё/g,'е').replace(/[.,;:!?()[\]«»"']/g,' ').replace(/\s+/g,' ').trim();
+ const aliases=[['существительное','сущ','имя существительное'],['прилагательное','прил','имя прилагательное'],['глагол','гл'],['местоимение','мест'],['числительное','числ','имя числительное'],['наречие','нареч'],['причастие','прич'],['деепричастие','дееприч'],['предлог','предл','пр'],['частица','част'],['междометие','межд'],['категория состояния','кат сост'],['подлежащее','подл'],['сказуемое','сказ'],['определение','опред'],['дополнение','доп'],['обстоятельство','обст'],['без подчеркивания','не является членом предложения','нет'],['повествовательное','повеств','повест'],['вопросительное','вопр'],['побудительное','побуд'],['восклицательное','воскл'],['невосклицательное','невоскл'],['распространенное','распр'],['нераспространенное','нераспр'],['двусоставное','двусост'],['односоставное','односост'],['осложнено','осложненное','осложн'],['неосложненное','неосложнено','неосложн']];
+ const canonical=s=>{const n=normalize(s);const group=aliases.find(a=>a.includes(n));return group?group[0]:n;};
+ const names={'подлежащее':'subject','сказуемое':'predicate','определение':'attribute','дополнение':'object','обстоятельство':'adverbial','без подчеркивания':''};
+ const inputs=Array.from(root.querySelectorAll('.sx-answer'));
+ function draw(el){if(el.dataset.kind==='role')el.closest('.sr-word').querySelector('.sx-mark').innerHTML=drawMark(names[canonical(el.value)]||'');}
+ function clear(el){el.classList.remove('sx-correct','sx-incorrect');el.removeAttribute('aria-invalid');el.nextElementSibling.textContent='';}
+ function check(){let correct=0;inputs.forEach(el=>{const ok=!!el.value.trim()&&canonical(el.value)===canonical(el.dataset.correct);clear(el);el.classList.add(ok?'sx-correct':'sx-incorrect');el.setAttribute('aria-invalid',String(!ok));el.nextElementSibling.textContent=ok?'✓ Верно':el.value.trim()?'✗ Попробуйте ещё':'✗ Заполните поле';if(ok)correct++;});root.querySelector('.sx-feedback').textContent=inputs.length?'Верно: '+correct+' из '+inputs.length+(correct===inputs.length?'. Отлично!':'. Исправьте отмеченные поля и проверьте ещё раз.'):'Все ответы уже показаны. В редакторе включите выбор или ввод ответов.';}
+ inputs.forEach(el=>{const change=()=>{clear(el);draw(el);root.querySelector('.sx-feedback').textContent='';};el.addEventListener('input',change);el.addEventListener('change',change);});
+ root.querySelector('[data-action="check"]')?.addEventListener('click',check);
+ root.querySelector('[data-action="answers"]')?.addEventListener('click',()=>{inputs.forEach(el=>{el.value=el.dataset.correct;draw(el);clear(el);});root.querySelector('.sx-feedback').textContent='Показаны правильные ответы. Нажмите «Начать заново», чтобы потренироваться.';});
+ root.querySelector('[data-action="reset"]')?.addEventListener('click',()=>{inputs.forEach(el=>{el.value='';draw(el);clear(el);});root.querySelector('.sx-feedback').textContent='Ответы очищены. Можно начать заново.';});
+}
+const originalRender=render;render=function(){originalRender();if(state.interactive.enabled)wireExercise($('preview'),mark);};
+const originalHydrate=hydrate;hydrate=function(){hydrateInteractive();originalHydrate();};
+const originalValidate=validate;validate=function(x){originalValidate(x);if(x.interactive!==undefined){if(!x.interactive||typeof x.interactive!=='object')throw Error('Некорректные настройки задания');for(const key of ['enabled','showAnswers','showReset'])if(typeof x.interactive[key]!=='boolean')throw Error('Некорректные настройки задания');for(const key of ['roleMode','posMode','characterMode'])if(!['static','select','input'].includes(x.interactive[key]))throw Error('Некорректный режим задания');}return x;};
+standalone=function(){ensureApplied();const script=state.interactive.enabled?'<script>('+wireExercise.toString()+')(document, '+mark.toString()+');<\/script>':'';return '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(state.title)+'</title><style>body{margin:0;padding:16px}'+cardCSS+exerciseCSS+'</style></head><body>'+card()+script+'</body></html>';};
+
+state.tokens=tokenize(state.sentence);const example=[['adverbial','предл.'],['attribute','прил.'],['attribute','прил.'],['attribute','прил.'],['adverbial','сущ.'],['predicate','гл.'],['attribute','прил.'],['subject','сущ.']];let n=0;state.tokens.forEach(t=>{if(t.word){[t.role,t.pos]=example[n++];}});hydrate();
+</script></body></html>
+
