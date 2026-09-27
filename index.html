@@ -230,7 +230,7 @@ interPanel.style.cssText='border:2px solid #0f6e6e;background:#eff9f7;border-rad
 const activate=document.createElement('button');activate.type='button';activate.id='make-interactive';activate.className='btn btn-teal';activate.textContent='Сделать карточку интерактивной';
 interPanel.prepend(activate);
 const modeStatus=document.createElement('p');modeStatus.id='export-mode';modeStatus.setAttribute('role','status');modeStatus.style.cssText='font-weight:bold;color:#0a4f4f';$('page-export').prepend(modeStatus);
-const versionBadge=document.createElement('p');versionBadge.textContent='Редактор 3 · Создание интерактивных карточек';versionBadge.style.cssText='margin:0 0 10px;color:#0a4f4f;font-weight:bold';$('page-parse').prepend(versionBadge);
+const versionBadge=document.createElement('p');versionBadge.textContent='Редактор 5 · Размер карточки и цвет кнопок';versionBadge.style.cssText='margin:0 0 10px;color:#0a4f4f;font-weight:bold';$('page-parse').prepend(versionBadge);
 function enableInteractive(){state.interactive.enabled=true;if(['roleMode','posMode','characterMode'].every(k=>state.interactive[k]==='static'))Object.assign(state.interactive,{roleMode:'select',posMode:'select',characterMode:'select'});hydrateInteractive();render();toast('Интерактивная карточка включена. Настройте выбор или ввод ответов ниже.');}
 activate.onclick=enableInteractive;
 for(const [key,label] of [['roleMode','Члены предложения'],['posMode','Части речи'],['characterMode','Характеристика предложения']]){
@@ -239,7 +239,7 @@ for(const [key,label] of [['roleMode','Члены предложения'],['pos
 for(const [key,label] of [['showAnswers','Кнопка «Показать ответы»'],['showReset','Кнопка «Начать заново»']]){const wrap=document.createElement('label');wrap.className='checkbox-line';wrap.innerHTML='<input type="checkbox" id="i-'+key+'">'+label;$('i-options').append(wrap);}
 function hydrateInteractive(){state.interactive={...interactiveDefaults,...state.interactive};for(const key of Object.keys(interactiveDefaults)){const el=$('i-'+key);if(el.type==='checkbox')el.checked=state.interactive[key];else el.value=state.interactive[key];}$('i-options').hidden=!state.interactive.enabled;modeStatus.textContent=state.interactive.enabled?'Режим: интерактивная карточка — ответы ребёнка и проверка сохранятся в HTML.':'Предпросмотр: готовый разбор. Кнопка скачивания включит интерактивное задание.';activate.setAttribute('aria-pressed',String(state.interactive.enabled));}
 Object.keys(interactiveDefaults).forEach(key=>$('i-'+key).onchange=e=>{state.interactive[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;hydrateInteractive();render();});
-const exerciseCSS=`.sr-card .sx-instructions{font:14px/1.5 Arial,sans-serif;margin:0 0 18px}.sr-card .sr-word{margin:5px 2px;gap:4px}.sr-card .sx-answer{box-sizing:border-box;font:14px/1.3 Arial,sans-serif;color:#20232b;background:#fff;border:2px solid #88969a;border-radius:6px;padding:6px;max-width:100%;min-width:0;width:100%}.sr-card .sx-word-task{width:158px}.sr-card .sx-pos{width:100%;min-height:30px}.sr-card .sx-role{font-size:12px}.sr-card .sx-character{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:18px;font-size:20px}.sr-card .sx-character label{display:flex;flex:1 1 210px;flex-direction:column;gap:4px;font:12px/1.4 Arial,sans-serif;text-transform:none;letter-spacing:normal;color:inherit}.sr-card .sx-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.sr-card .sx-actions button{font:bold 14px Arial,sans-serif;padding:10px 14px;border:1px solid #0f6e6e;border-radius:8px;background:#0f6e6e;color:white;cursor:pointer}.sr-card .sx-feedback{font:14px/1.5 Arial,sans-serif;margin-top:12px}.sr-card .sx-answer.sx-correct{border-color:#23833e;background:#effaf1}.sr-card .sx-answer.sx-incorrect{border-color:#bf3b2d;background:#fff2ef}.sr-card .sx-answer:focus{outline:2px solid #0f6e6e;outline-offset:2px}.sr-card .sx-status{font:12px Arial,sans-serif;white-space:normal}.sr-card .sx-field{display:inline-flex;flex-direction:column;width:100%;gap:3px}.sr-card .sx-character .sx-field{min-width:0}@media(max-width:480px){.sr-card{padding:16px!important}.sr-card .sx-word-task{width:145px}}`;
+const exerciseCSS=`.sr-card .sx-instructions{font:14px/1.5 Arial,sans-serif;margin:0 0 18px}.sr-card .sr-word{margin:5px 2px;gap:4px}.sr-card .sx-answer{box-sizing:border-box;font:14px/1.3 Arial,sans-serif;color:#20232b;background:#fff;border:2px solid #88969a;border-radius:6px;padding:6px;max-width:100%;min-width:0;width:100%}.sr-card .sx-word-task{width:158px}.sr-card .sx-pos{width:100%;min-height:30px}.sr-card .sx-role{font-size:12px}.sr-card .sx-character{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:18px;font-size:20px}.sr-card .sx-character label{display:flex;flex:1 1 210px;flex-direction:column;gap:4px;font:12px/1.4 Arial,sans-serif;text-transform:none;letter-spacing:normal;color:inherit}.sr-card .sx-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.sr-card .sx-actions button{font:bold 14px Arial,sans-serif;padding:10px 14px;border:1px solid var(--sx-button,#0f6e6e);border-radius:8px;background:var(--sx-button,#0f6e6e);color:var(--sx-button-text,#ffffff);cursor:pointer}.sr-card .sx-feedback{font:14px/1.5 Arial,sans-serif;margin-top:12px}.sr-card .sx-answer.sx-correct{border-color:#23833e;background:#effaf1}.sr-card .sx-answer.sx-incorrect{border-color:#bf3b2d;background:#fff2ef}.sr-card .sx-answer:focus{outline:2px solid #0f6e6e;outline-offset:2px}.sr-card .sx-status{font:12px Arial,sans-serif;white-space:normal}.sr-card .sx-field{display:inline-flex;flex-direction:column;width:100%;gap:3px}.sr-card .sx-character .sx-field{min-width:0}@media(max-width:480px){.sr-card{padding:16px!important}.sr-card .sx-word-task{width:145px}}`;
 const style=document.createElement('style');style.textContent=exerciseCSS;document.head.append(style);
 const originalCard=card;
 function answerField(correct,mode,options,label,kind){
@@ -289,6 +289,44 @@ const originalHydrate=hydrate;hydrate=function(){hydrateInteractive();originalHy
 const originalValidate=validate;validate=function(x){originalValidate(x);if(x.interactive!==undefined){if(!x.interactive||typeof x.interactive!=='object')throw Error('Некорректные настройки задания');for(const key of ['enabled','showAnswers','showReset'])if(typeof x.interactive[key]!=='boolean')throw Error('Некорректные настройки задания');for(const key of ['roleMode','posMode','characterMode'])if(!['static','select','input'].includes(x.interactive[key]))throw Error('Некорректный режим задания');}return x;};
 standalone=function(){ensureApplied();const script=state.interactive.enabled?'<script>('+wireExercise.toString()+')(document, '+mark.toString()+');<\/script>':'';return '<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(state.title)+'</title><style>body{margin:0;padding:16px}'+cardCSS+exerciseCSS+'</style></head><body>'+card()+script+'</body></html>';};
 
+const buttonColorDefaults={buttonColor:'#0f6e6e',buttonTextColor:'#ffffff'};
+Object.assign(state.visual,buttonColorDefaults);
+for(const [key,label] of [['buttonColor','Цвет кнопок карточки'],['buttonTextColor','Цвет текста на кнопках']]){
+ const field=document.createElement('div');field.className='field';
+ const labelEl=document.createElement('label');labelEl.htmlFor=key;labelEl.textContent=label;
+ const input=document.createElement('input');input.id=key;input.type='color';input.value=state.visual[key];
+ input.addEventListener('input',()=>{state.visual[key]=input.value;render();});
+ field.append(labelEl,input);$('page-visual').querySelector('.field-row').append(field);
+}
+const cardBeforeColors=card;
+card=function(){return cardBeforeColors().replace('class="sr-card" style="','class="sr-card" style="--sx-button:'+state.visual.buttonColor+';--sx-button-text:'+state.visual.buttonTextColor+';');};
+const hydrateBeforeColors=hydrate;
+hydrate=function(){state.visual={...buttonColorDefaults,...state.visual};hydrateBeforeColors();};
+const validateBeforeColors=validate;
+validate=function(x){validateBeforeColors(x);for(const key of Object.keys(buttonColorDefaults)){if(x.visual[key]!==undefined&&!/^#[0-9a-f]{6}$/i.test(x.visual[key]))throw Error('Некорректный цвет кнопок');}return x;};
+
+function wireCardResize(root,onSize){
+ const card=root.querySelector('.sr-card');if(!card)return;
+ card.style.resize='both';card.style.overflow='auto';card.style.minWidth='240px';card.style.minHeight='180px';
+ const controls=document.createElement('div');controls.className='resize-controls';controls.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px auto;font:13px/1.5 Arial,sans-serif;max-width:100%;color:#46505b';
+ const hint=document.createElement('span');hint.textContent='Размер карточки: потяните за правый нижний угол ↘';
+ const fit=document.createElement('button');fit.textContent='По ширине окна';fit.type='button';
+ const reset=document.createElement('button');reset.textContent='Сбросить размер';reset.type='button';
+ const initial=card.style.width;const output=document.createElement('span');output.setAttribute('aria-live','polite');
+ [fit,reset].forEach(b=>b.style.cssText='font:inherit;padding:6px 10px;border:1px solid #88969a;background:#fff;color:#20232b;border-radius:6px;cursor:pointer');
+ fit.onclick=()=>{card.style.width='100%';card.style.height='auto';};reset.onclick=()=>{card.style.width=initial;card.style.height='auto';};
+ controls.append(hint,fit,reset,output);card.after(controls);
+ let lastWidth=0;const observer=new ResizeObserver(()=>{const w=Math.round(card.getBoundingClientRect().width),h=Math.round(card.getBoundingClientRect().height);output.textContent=w+' × '+h+' px';if(onSize&&lastWidth&&w!==lastWidth)onSize(w);lastWidth=w;});observer.observe(card);
+ return ()=>observer.disconnect();
+}
+const resizePrint=document.createElement('style');resizePrint.textContent='@media print{.resize-controls{display:none!important}.sr-card{resize:none!important;height:auto!important;overflow:visible!important}}';document.head.append(resizePrint);
+const renderBeforeResize=render;let disconnectResize;
+render=function(){if(disconnectResize)disconnectResize();renderBeforeResize();disconnectResize=wireCardResize($('preview'),width=>{state.visual.width=Math.max(320,Math.min(1400,width));$('width').value=state.visual.width;$('width-value').textContent=state.visual.width;});};
+const standaloneBeforeResize=standalone;
+standalone=function(){const html=standaloneBeforeResize();const end=html.lastIndexOf('</body>');return html.slice(0,end)+'<style>@media print{.resize-controls{display:none!important}.sr-card{resize:none!important;height:auto!important;overflow:visible!important}}</style><script>('+wireCardResize.toString()+')(document);<\/script>'+html.slice(end);};
+const resizingHint=document.createElement('p');resizingHint.className='hint';resizingHint.textContent='В скачанном HTML и внутри вставки Genially размер карточки можно менять за нижний правый угол. Карточка ограничена шириной вставки; чтобы сделать её больше, увеличьте сам блок в Genially. Высота блока вставки задаётся отдельно.';$('page-export').append(resizingHint);
+
 state.tokens=tokenize(state.sentence);const example=[['adverbial','предл.'],['attribute','прил.'],['attribute','прил.'],['attribute','прил.'],['adverbial','сущ.'],['predicate','гл.'],['attribute','прил.'],['subject','сущ.']];let n=0;state.tokens.forEach(t=>{if(t.word){[t.role,t.pos]=example[n++];}});hydrate();
 </script></body></html>
+
 
